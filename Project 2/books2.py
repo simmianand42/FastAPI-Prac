@@ -49,9 +49,17 @@ BOOKS = [
 async def get_all():
     return BOOKS
 
+# Without validation
 @app.post("/books/create_book")
 async def create_book(book_request = Body()):
     BOOKS.append(book_request)
+
+# With Validation
+@app.post("/books/valid_create_book")
+async def create_valid_book(book_request: BookRequest):
+    new_book = Book(**book_request.dict())
+    BOOKS.append(new_book)
+
 
 # Without Validation
 @app.put("/books/invalid_id_update/{book_title}")
@@ -74,3 +82,6 @@ async def update_book(book_id: int, book: BookRequest):
             book_changed = True
     if not book_changed:
         raise HTTPException(status_code=404, detail='Item not found')
+
+
+

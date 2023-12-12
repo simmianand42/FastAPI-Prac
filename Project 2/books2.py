@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body, HTTPException
+from pydantic import BaseModel, Field
+
+from typing import Optional
 
 app = FastAPI()
 
@@ -6,15 +9,34 @@ class Book:
     id: int
     title: str
     author: str
-    decription: str
+    description: str
     category: str
 
-    def __init__(self, id, title, author, decrption, category):
+    def __init__(self, id, title, author, description, category):
         self.id = id
         self.title = title
         self.author = author
-        self.decription = decrption
+        self.description = description
         self.category = category
+
+class BookRequest(BaseModel):
+    id: Optional[int] = Field(title='id id not needed')
+    title: str = Field(min_length = 6)
+    author: str = Field(min_legth = 6)
+    description: str = Field(min_length=10, max_length= 100)
+    category: str = Field(min_length = 5)
+
+    class Config:
+        schema_extra = {
+            'example': {
+                'title' : 'A new book',
+                'author' : 'Coding with Me',
+                'description': 'A new description',
+                'category': 'sample'
+            }
+        }
+
+
 
 
 BOOKS = [
@@ -29,3 +51,20 @@ BOOKS = [
 @app.get("/books")
 async def get_all():
     return BOOKS
+
+@app.post("/books/create_book")
+async def create_book(book_request = Body()):
+    BOOKS.append(book_request)
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    book_changed = False
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i].title = book.title
+            BOOKS[i].description = book.description
+            BOOKS[i].category = book.category
+            BOOKS[i].author = book.author
+            book_changed = True
+    if not book_changed:
+        raise HTTPException(status_code=404, detail='Item not found')

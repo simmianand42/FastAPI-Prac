@@ -36,9 +36,6 @@ class BookRequest(BaseModel):
             }
         }
 
-
-
-
 BOOKS = [
     Book(1,'Title One', 'Author One', 'A very nice book', 'science'),
     Book(2, 'Title Two', 'Author Two', 'A very nice book',  'science'),
@@ -56,11 +53,20 @@ async def get_all():
 async def create_book(book_request = Body()):
     BOOKS.append(book_request)
 
-@app.put("/books/update_book")
-async def update_book(book: BookRequest):
+# Without Validation
+@app.put("/books/invalid_id_update/{book_title}")
+async def update_book_invalid(book_title: str, book = Body()):
     book_changed = False
     for i in range(len(BOOKS)):
-        if BOOKS[i].id == book.id:
+        if BOOKS[i].title == book_title.casefold():
+            BOOKS[i] = book
+
+# With validation
+@app.put("/books/update_book/{book_id}")
+async def update_book(book_id: int, book: BookRequest):
+    book_changed = False
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
             BOOKS[i].title = book.title
             BOOKS[i].description = book.description
             BOOKS[i].category = book.category

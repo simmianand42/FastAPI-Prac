@@ -58,7 +58,11 @@ async def create_book(book_request = Body()):
 @app.post("/books/valid_create_book")
 async def create_valid_book(book_request: BookRequest):
     new_book = Book(**book_request.dict())
-    BOOKS.append(new_book)
+    BOOKS.append(find_book_id(new_book))
+    
+def find_book_id(book: Book):
+    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+    return book
 
 
 # Without Validation

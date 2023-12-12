@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, HTTPException
+from fastapi import FastAPI, Body, HTTPException, Path
 from pydantic import BaseModel, Field
 
 from typing import Optional
@@ -87,5 +87,16 @@ async def update_book(book_id: int, book: BookRequest):
     if not book_changed:
         raise HTTPException(status_code=404, detail='Item not found')
 
+@app.delete("/books/{book_id}")
+async def delete_book(book_id: int = Path(gt=0)):
+    book_deleted = False
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            book_deleted = True
+            break
+    if not book_deleted:
+        raise HTTPException(status_code=404, detail = 'Item not found')
+    
 
 

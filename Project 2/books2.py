@@ -20,14 +20,14 @@ class Book:
         self.category = category
 
 class BookRequest(BaseModel):
-    id: Optional[int] = Field(title='id id not needed')
+    id: Optional[int] = Field(title='id id not needed') # Optional variables need a =None example -> id: Optional[int] = None
     title: str = Field(min_length = 6)
     author: str = Field(min_legth = 6)
     description: str = Field(min_length=10, max_length= 100)
     category: str = Field(min_length = 5)
 
     class Config:
-        schema_extra = {
+        schema_extra = {  # use json_schema_extra if using Pydantics v2
             'example': {
                 'title' : 'A new book',
                 'author' : 'Coding with Me',
@@ -72,7 +72,7 @@ async def create_book(book_request = Body()):
 # With Validation
 @app.post("/books/valid_create_book")
 async def create_valid_book(book_request: BookRequest):
-    new_book = Book(**book_request.dict())
+    new_book = Book(**book_request.dict())  # use .model_dump() instead of .dict() function for Pydantics v2
     BOOKS.append(find_book_id(new_book))
     
 def find_book_id(book: Book):

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, HTTPException, Path
+from fastapi import FastAPI, Body, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
 from typing import Optional
@@ -48,6 +48,21 @@ BOOKS = [
 @app.get("/books")
 async def get_all():
     return BOOKS
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+    raise HTTPException(status_code=404, detail='Item not found')
+
+@app.get("/books/")
+async def read_book_by_query(book_id: int = Query(gt=0)):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+    raise HTTPException(status_code=404, detail='Item not found')
+
 
 # Without validation
 @app.post("/books/create_book")
